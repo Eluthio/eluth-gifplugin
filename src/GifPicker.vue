@@ -28,11 +28,7 @@
                 />
             </div>
 
-            <div v-if="!hasKey" class="gif-no-key">
-                No API key configured. An admin must add a Tenor or Giphy key in Plugin Settings.
-            </div>
-
-            <div v-else-if="loading" class="gif-loading">Searching…</div>
+            <div v-if="loading" class="gif-loading">Searching…</div>
 
             <div v-else-if="results.length === 0 && query" class="gif-empty">No results.</div>
 
@@ -67,19 +63,19 @@ const provider = ref('')
 
 let debounceTimer = null
 
+// Tenor works out of the box with their public demo key — no setup needed
+const TENOR_DEMO_KEY = 'LIVDSRZULELA'
+
 const availableProviders = computed(() => {
-    const list = []
-    if (props.settings?.tenor_key) list.push({ id: 'tenor', label: 'Tenor' })
+    const list = [{ id: 'tenor', label: 'Tenor' }]  // always available
     if (props.settings?.giphy_key) list.push({ id: 'giphy', label: 'Giphy' })
     return list
 })
 
-const hasKey = computed(() => availableProviders.value.length > 0)
-
 function toggle() {
     open.value = !open.value
-    if (open.value && !provider.value && availableProviders.value.length) {
-        provider.value = availableProviders.value[0].id
+    if (open.value) {
+        if (!provider.value) provider.value = 'tenor'
         search()
     }
 }
@@ -90,10 +86,7 @@ function onSearchInput() {
 }
 
 async function search() {
-    if (!hasKey.value) return
-    if (!provider.value && availableProviders.value.length) {
-        provider.value = availableProviders.value[0].id
-    }
+    if (!provider.value) provider.value = 'tenor'
     loading.value = true
     results.value = []
     try {
@@ -111,16 +104,16 @@ async function search() {
 
 async function searchTenor() {
     const q   = query.value || 'trending'
-    const key = props.settings.tenor_key
-    const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(q)}&key=${encodeURIComponent(key)}&limit=24&media_filter=gif`
+    const key = props.settings?.tenor_key || TENOR_DEMO_KEY
+    const url = `https://g.tenor.com/v1/search?q=${encodeURIComponent(q)}&key=${encodeURIComponent(key)}&limit=24&contentfilter=medium&media_filter=minimal`
     const res = await fetch(url)
     if (!res.ok) return []
     const data = await res.json()
     return (data.results ?? []).map(r => ({
         id:      r.id,
         title:   r.title || '',
-        preview: r.media_formats?.tinygif?.url ?? r.media_formats?.gif?.url ?? '',
-        url:     r.media_formats?.gif?.url ?? '',
+        preview: r.media?.[0]?.tinygif?.url ?? r.media?.[0]?.gif?.url ?? '',
+        url:     r.media?.[0]?.gif?.url ?? '',
     })).filter(g => g.url)
 }
 
