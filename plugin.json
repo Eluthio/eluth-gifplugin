@@ -1,0 +1,30 @@
+{
+  "name": "GIF Picker",
+  "slug": "gif-picker",
+  "version": "1.0.0",
+  "tier": "official",
+  "author": "Eluthio",
+  "description": "Search and insert GIFs from Tenor and Giphy directly into chat.",
+  "homepage": "https://github.com/Eluthio/plugin-gif-picker",
+  "zones": ["input"],
+  "data_access": [],
+  "backend_hooks": [],
+  "wss_scopes": [],
+  "settings": [
+    {
+      "key": "tenor_key",
+      "label": "Tenor API Key",
+      "type": "text",
+      "required": false,
+      "placeholder": "Get a free key at tenor.com/gifapi"
+    },
+    {
+      "key": "giphy_key",
+      "label": "Giphy API Key",
+      "type": "text",
+      "required": false,
+      "placeholder": "Get a free key at developers.giphy.com"
+    }
+  ],
+  "entry": "src/GifPicker.vue"
+}
