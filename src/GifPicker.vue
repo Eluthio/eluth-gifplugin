@@ -27,7 +27,9 @@
 
                 <div v-else-if="loading" class="gif-loading">Searching…</div>
 
-                <div v-else-if="results.length === 0 && query" class="gif-empty">No results.</div>
+                <div v-else-if="results.length === 0" class="gif-empty">
+                    {{ query ? 'No results.' : 'No trending GIFs found — try searching.' }}
+                </div>
 
                 <div v-else class="gif-grid">
                     <img
@@ -73,7 +75,7 @@ const hasKey = computed(() => !!props.settings?.giphy_key)
 
 function toggle() {
     if (!open.value) {
-        const rect = wrapRef.value.getBoundingClientRect()
+        const rect = wrapRef.value?.getBoundingClientRect() ?? { left: 8, top: window.innerHeight - 60 }
         const left = Math.max(8, Math.min(rect.left, window.innerWidth - 376))
         panelStyle.value = {
             left:   left + 'px',
@@ -113,7 +115,7 @@ async function search() {
         const res = await fetch(endpoint, {
             headers: { Authorization: 'Bearer ' + props.authToken },
         })
-        if (!res.ok) return
+        if (!res.ok) { results.value = []; return }
         const data = await res.json()
         results.value = data.gifs ?? []
     } catch {
