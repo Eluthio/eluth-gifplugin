@@ -110,8 +110,8 @@ async function search() {
         const q        = query.value.trim()
         const base     = props.apiBase.replace(/\/$/, '')
         const endpoint = base + (q
-            ? `/api/plugins/gif-picker/search?q=${encodeURIComponent(q)}`
-            : '/api/plugins/gif-picker/trending')
+            ? `/plugins/gif-picker/search?q=${encodeURIComponent(q)}`
+            : '/plugins/gif-picker/trending')
         const res = await fetch(endpoint, {
             headers: { Authorization: 'Bearer ' + props.authToken },
         })
